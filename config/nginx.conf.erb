@@ -1,0 +1,80 @@
+daemon off;
+#Heroku dynos have at least 4 cores.
+worker_processes <%= ENV['NGINX_WORKERS'] || 4 %>;
+
+events {
+    use epoll;
+    accept_mutex on;
+
+    #
+    # Number of connections per worker, 1024 * 4 = 4096 total
+    worker_connections 1024;
+}
+
+http {
+    #
+    # Log output; we may want to standardize this
+    log_format l2met 'measure#nginx.service=$request_time request_id=$http_x_request_id upstreamResp=$upstream_response_time apiKey:$arg_key';
+    access_log logs/nginx/access.log l2met;
+    error_log logs/nginx/error.log;
+
+    include mime.types;
+    default_type application/octet-stream;
+    sendfile on;
+
+    #
+    # Explicit upstream server config, here we can ELB
+    upstream gui_server {
+        server unix:/tmp/nginx.socket fail_timeout=0;
+     }
+
+    server {
+        listen <%= ENV["PORT"] %>;
+        server_name _;
+        keepalive_timeout 5;
+
+        #
+        # nginx root content directory (relative to our app)
+        root static;
+
+        #
+        # Compress this location
+        gzip on;
+        gzip_min_length 1000;
+        gzip_proxied any;
+        gzip_types text/plain application/json;
+
+        #
+        # Header maintenance
+        proxy_set_header X-Request-ID $http_x_request_id;
+        proxy_hide_header X-Powered-By;
+
+        location /api {
+            #
+            # Add the api key to the url if not present
+            if ($arg_key = "") {
+                set $args key=<%= ENV["TGTRAD_AS_GUI_AUTH_KEY"] %>&$args;
+            }
+
+            #
+            # rewrite the url and remove the /api
+            rewrite ^(\/api)(\/)?(.*)$ /$3 break;
+
+            #
+            # Push API traffic the the upstream API server
+            proxy_pass <%= ENV["TGTRAD_API_PROXY_URL"] %>;
+        }
+
+        location /robots.txt {
+            # serve it from /static
+            <%= (ENV['TGTRAD_AS_ROBOTS_ALLOW_ALL_BUT_API'] == 'true') ? 'alias static/robots.txt' : 'alias static/robots-hideall.txt' %>;
+        }
+
+        location / {
+            #
+            # Push whatever is left to the local upstream GUI server
+            proxy_pass http://gui_server;
+        }
+
+    }
+}

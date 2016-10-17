@@ -1,0 +1,82 @@
+[
+  {
+    "tabFilters": [
+      {
+        "filters": [
+          
+        ],
+        "name": "category",
+        "showMenu": true,
+        "dvm": {
+          "isEnabled" : true,
+          "content": "Product page category",
+          "dest": ""
+        }
+      }
+    ],
+    "tab": "products"
+  },
+  {
+    "tabFilters": [
+      {
+        "filters": [
+          {
+            "name": "all emojis",
+            "default": true,
+            "process": false,
+            "showImage": false
+          },
+          {
+            "name": "hot",
+            "showImage": true,
+            "imageClass": "hot",
+            "filterValue": "emoji.hot"
+          },
+          {
+            "name": "quirky",
+            "showImage": true,
+            "imageClass": "quirky",
+            "filterValue": "emoji.quirky"
+          },
+          {
+            "name": "so-cool",
+            "displayName": "so cool",
+            "showImage": true,
+            "imageClass": "so-cool",
+            "filterValue": "emoji.so-cool"
+          },
+          {
+            "name": "love-it",
+            "displayName": "love it",
+            "showImage": true,
+            "imageClass": "love-it",
+            "filterValue": "emoji.love-it"
+          }
+        ],
+        "name": "emoji",
+        "showMenu": true,
+        "dvm": {
+          "isEnabled" : false,
+          "content": "Looks page category",
+          "dest": ""
+        }
+      }
+    ],
+    "tab": "looks"
+  },
+  {
+    "tabFilters": [
+      {
+        "filters": [
+          
+        ],
+        "name": "emoji",
+        "showMenu": false,
+        "dvm": {
+          "isEnabled" : false
+        }
+      }
+    ],
+    "tab": "places"
+  }
+]

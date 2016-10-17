@@ -1,0 +1,3 @@
+User-agent: *   # match all bots
+Disallow: /     # keep them out of our Application
+Disallow: *     # keep them out of our Application
